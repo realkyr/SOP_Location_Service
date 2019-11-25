@@ -25,7 +25,7 @@ SECRET_KEY = '2p0p6ibcznr6i2_9i)ql=&0j3)rtyefojtq=z)-!378g^_8$*l'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['fiery-bedrock-260116.appspot.com']
+ALLOWED_HOSTS = ['fiery-bedrock-260116.appspot.com', 'localhost']
 
 
 # Application definition
@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'app.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'postgres',
+        'USER': 'sys',
+        'PASSWORD': '2MCh5xNC',
+        'HOST': '/cloudsql/fiery-bedrock-260116:us-central1:location-service',
+        'PORT': '',
     }
 }
 
