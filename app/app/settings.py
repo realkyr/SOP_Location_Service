@@ -84,6 +84,10 @@ DATABASES = {
         'HOST': '/cloudsql/fiery-bedrock-260116:us-central1:location-service',
         'PORT': '',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+    #     'NAME': 'sqlite3.db'
+    # }
 }
 
 
