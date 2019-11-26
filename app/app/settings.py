@@ -76,18 +76,18 @@ WSGI_APPLICATION = 'app.wsgi.application'
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'postgres',
-        'USER': 'sys',
-        'PASSWORD': '2MCh5xNC',
-        'HOST': '/cloudsql/fiery-bedrock-260116:us-central1:location-service',
-        'PORT': '',
-    }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-    #     'NAME': 'sqlite3.db'
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': 'postgres',
+    #     'USER': 'sys',
+    #     'PASSWORD': '2MCh5xNC',
+    #     'HOST': '/cloudsql/fiery-bedrock-260116:us-central1:location-service',
+    #     'PORT': '',
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'NAME': 'sqlite3.db'
+    }
 }
 
 
