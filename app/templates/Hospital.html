@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css"
+    integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/js/bootstrap.min.js"
+    integrity="sha384-3qaqj0lc6sV/qpzrc1N5DC6i1VRn/HyX4qdPaiEFbn54VjQBEU341pvjz7Dv3n6P"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <title>Create Hospital</title>
+</head>
+
+<body>
+  <div id="app">
+    <div class="container">
+      <h2>{{ name }}</h2>
+      <p>{{ description }}</p>
+      <div id='map'></div>
+    </div>
+  </div>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBlcegKXIhTmyfLMCkr2ScrcBD22D5t4Xk"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  {% load staticfiles %}
+  <script>
+    var app = new Vue({
+      el: '#app',
+      delimiters: ['${', '}'],
+      data: {
+        name: '',
+        description: '',
+        phone: '',
+        facebook: '',
+        load: ''
+      },
+      mounted() {
+        this.map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: -34.397, lng: 150.644 },
+          zoom: 8,
+          streetViewControl: false,
+          disableDefaultUI: true
+        })
+        let icon = "{% static "location/hospital.png" %}"
+        this.map.panTo({
+          lat: parseFloat("{{ latitude }}"),
+          lng: parseFloat("{{ longitude }}")
+        })
+        this.map.setZoom(15)
+        this.hospital = new google.maps.Marker({
+          position: {
+            lat: parseFloat("{{ latitude }}"),
+            lng: parseFloat("{{ longitude }}")
+          },
+          icon: icon,
+          map: this.map,
+          title: "{{ name }}",
+          animation: google.maps.Animation.DROP
+        })
+      }
+    })
+  </script>
+  <style>
+    #map {
+      height: 50vh;
+      border-radius: 10px;
+    }
+  </style>
+</body>
+
+</html>

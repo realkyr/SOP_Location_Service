@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/css/bootstrap.min.css"
+    integrity="sha384-SI27wrMjH3ZZ89r4o+fGIJtnzkAnFs3E4qz9DIYioCQ5l9Rd/7UAa8DHcaL8jkWt" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+    integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.0/js/bootstrap.min.js"
+    integrity="sha384-3qaqj0lc6sV/qpzrc1N5DC6i1VRn/HyX4qdPaiEFbn54VjQBEU341pvjz7Dv3n6P"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+  <title>Hospital Location</title>
+</head>
+
+<body>
+  <div style="height: 100vh;" id="app">
+    <div style="height: 90%;" class="container">
+      <h2>โรงพยาบาลในระแวกใกล้เคียง</h2>
+      <div class="form-group">
+        <label for="formControlRange">ระยะ ${ range }</label>
+        <input min="1" @change="getFilterLocation" v-model="range" type="range" class="form-control-range"
+          id="formControlRange">
+      </div>
+      <div id=map></div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  {% load staticfiles %}
+  <script>
+    var app = new Vue({
+      el: '#app',
+      delimiters: ['${', '}'],
+      data: {
+        range: 2,
+        filteredHospital: {}
+      },
+      mounted() {
+        this.map = new google.maps.Map(document.getElementById('map'), {
+          center: { lat: -34.397, lng: 150.644 },
+          zoom: 8
+        })
+        this.$nextTick(() => {
+          this.getUserLocation()
+        })
+      },
+      methods: {
+        getUserLocation() {
+          if (navigator.geolocation) {
+            // get user location and then animate map to the position
+            navigator.geolocation.getCurrentPosition(
+              async position => {
+                console.log(position)
+                this.position = position.coords
+                this.map.panTo({
+                  lat: this.position.latitude,
+                  lng: this.position.longitude
+                })
+                this.map.setZoom(20)
+                this.userMarker = new google.maps.Marker({
+                  position: {
+                    lat: this.position.latitude,
+                    lng: this.position.longitude
+                  },
+                  map: this.map,
+                  title: 'myMarker'
+                })
+                await this.generateMarker(this.range)
+              },
+              async () => {
+                // error handling
+                alert('USER LOCATION CANNOT PERFORM ON HTTP: AUTOMATICAL SET LOCATION TO KMITL')
+                this.position = {
+                  latitude: 13.73103,
+                  longitude: 100.7790245
+                }
+                this.map.panTo({
+                  lat: this.position.latitude,
+                  lng: this.position.longitude
+                })
+                this.newLocation = {
+                  longitude: this.position.latitude,
+                  latitude: this.position.longitude
+                }
+                this.map.setZoom(15)
+                this.userMarker = new google.maps.Marker({
+                  position: {
+                    lat: this.position.latitude,
+                    lng: this.position.longitude
+                  },
+                  map: this.map,
+                  title: 'myMarker'
+                })
+                await this.generateMarker(this.range)
+              },
+              { timeout: 10000 }
+            )
+          } else {
+            alert('this browser does not support geolocation')
+          }
+        },
+        async generateMarker(range) {
+          console.log('let gen marker')
+          let { data } = await axios.get(
+            "http://localhost:8000/location/filter?" + `lat=${this.position.latitude}&lon=${this.position.longitude}&km=${range}`
+          )
+          let newData = {}
+          data.forEach(el => {
+            newData[el.id] = el
+          })
+          let diff = this.arr_diff(Object.keys(newData), Object.keys(this.filteredHospital))
+          diff.forEach(id => {
+            let icon = "{% static "location/hospital.png" %}"
+            if (diff.includes(id) && !Object.keys(this.filteredHospital).includes(id)) {
+              this.filteredHospital[id] = {}
+              this.filteredHospital[id].data = newData[id]
+              this.filteredHospital[id].marker = new google.maps.Marker({
+                position: {
+                  lat: newData[id].latitude,
+                  lng: newData[id].longitude
+                },
+                icon: icon,
+                map: this.map,
+                title: newData[id].name,
+                animation: google.maps.Animation.DROP
+              })
+              google.maps.event.addListener(
+                this.filteredHospital[id].marker,
+                'click',
+                () => { window.location.href = '/hospital/' + id }
+              )
+            } else if (diff.includes(id) && Object.keys(this.filteredHospital).includes(id)) {
+              console.log('delete')
+              this.filteredHospital[id].marker.setMap(null)
+              delete this.filteredHospital[id]
+            }
+          })
+        },
+        arr_diff(a1, a2) {
+          var a = [], diff = [];
+
+          for (var i = 0; i < a1.length; i++) {
+            a[a1[i]] = true;
+          }
+
+          for (var i = 0; i < a2.length; i++) {
+            if (a[a2[i]]) {
+              delete a[a2[i]];
+            } else {
+              a[a2[i]] = true;
+            }
+          }
+
+          for (var k in a) {
+            diff.push(k);
+          }
+
+          return diff;
+        },
+        getFilterLocation() {
+          this.generateMarker(this.range)
+        }
+      }
+    })
+  </script>
+  <style>
+    #map {
+      height: 100%;
+    }
+  </style>
+</body>
+
+</html>

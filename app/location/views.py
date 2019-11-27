@@ -9,10 +9,15 @@ from math import sin, cos, sqrt, atan2, radians
 from rest_framework.response import Response
 from rest_framework import status
 
+import py_eureka_client.eureka_client as eureka_client
+
+from . import permissions
+
 import sys
 
 # Create your views here.
 class LocationList(generics.ListCreateAPIView):
+    permission_classes = [permissions.DockterOrReadOnly]
     queryset = models.Location.objects.all()
     serializer_class = serializers.LocationSerializer
 
@@ -21,6 +26,7 @@ class LocationDetail(generics.RetrieveUpdateDestroyAPIView):
         Retrieve update delete specific cafestore
         using GET and PUT method
     """
+    permission_classes = [permissions.DockterOrReadOnly]
     serializer_class = serializers.LocationSerializer
     queryset = models.Location.objects.all()
     lookup_field = 'id'

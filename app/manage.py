@@ -9,7 +9,9 @@ def main():
     your_rest_server_port = 8000
     eureka_client.init(eureka_server="http://34.66.153.219:8761/eureka/",
                        app_name="LOCATION-SERVICE",
-                       instance_port=your_rest_server_port)
+                       instance_port=your_rest_server_port,
+                       instance_ip="35.225.198.249"
+                       )
     # eureka_client.init_registry_client(eureka_server="http://34.66.153.219:8761/eureka/",
     #                                    app_name="LOCATION_SERVICE")
     # eureka_client.stop()
